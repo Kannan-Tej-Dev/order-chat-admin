@@ -11,6 +11,7 @@ export const getChats = createAsyncThunk(
       });
       return response.data;
     } catch (error) {
+      console.log(error?.status,"dsklfls");
       return rejectWithValue(
         error.response?.data?.detail ||
           error.response?.data?.error ||

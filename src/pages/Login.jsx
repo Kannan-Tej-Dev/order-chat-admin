@@ -41,7 +41,7 @@ export default function Login() {
       // Redirect to the dashboard or home page after successful login
     //   window.location.href = "/dashboard"; // Change this to your desired route
 
-    navigate("/dashboard"); // Change this to your desired route
+    navigate("/"); // Change this to your desired route
     console.log("Login successful, redirecting to dashboard...");
     }
   },[loginSuccess])

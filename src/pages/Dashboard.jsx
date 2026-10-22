@@ -12,7 +12,7 @@ import {
   Input,
   Tag,
   Empty,
-  Image
+  Image,
 } from "antd";
 
 import {
@@ -25,17 +25,15 @@ import {
   PaperClipOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
-import {
-  Users,
-  MessagesSquare,
-  MessageCircle,
-} from "lucide-react";
+import { Users, MessagesSquare, MessageCircle } from "lucide-react";
 
 import "../assets/css/Dashboard.css"; // Import the CSS file for styling
 import Navbar from "../layouts/Navbar";
 // import { Sidebar } from "../layouts/Sidebar";
 import { useDispatch, useSelector } from "react-redux";
 import { getChats, getstats } from "../features/chatSlice";
+import { useNavigate } from "react-router-dom";
+import { fetchMe } from "../features/authSlice";
 const { Content } = Layout;
 const { Title, Text } = Typography;
 
@@ -43,7 +41,8 @@ export default function Dashboard() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [searchText, setSearchText] = useState("");
   const dispatch = useDispatch();
-  const { chats, loading, statsData } = useSelector((state) => state.chats);
+  const navigate = useNavigate();
+  const { chats, loading, statsData,error } = useSelector((state) => state.chats);
   console.log("chats:", chats);
   console.log(statsData, "sjkdhsl");
   const columns = [
@@ -65,25 +64,25 @@ export default function Dashboard() {
       key: "totalMessages",
       align: "center",
     },
-   
-{
-  title: "Status",
-  dataIndex: "status",
-  key: "status",
-  align: "center",
-  render: (status) => {
-    const normalizedStatus = String(status || "unknown")
-      .toLowerCase()
-      .replace(/\s+/g, "-");
 
-    return (
-      <span className={`orders-status-badge status-${normalizedStatus}`}>
-        <span className="orders-status-dot" />
-        {status || "Unknown"}
-      </span>
-    );
-  },
-},
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      align: "center",
+      render: (status) => {
+        const normalizedStatus = String(status || "unknown")
+          .toLowerCase()
+          .replace(/\s+/g, "-");
+
+        return (
+          <span className={`orders-status-badge status-${normalizedStatus}`}>
+            <span className="orders-status-dot" />
+            {status || "Unknown"}
+          </span>
+        );
+      },
+    },
 
     {
       title: "Action",
@@ -99,42 +98,45 @@ export default function Dashboard() {
         //   View
         // </Button>
         <Button
-  className="order-view-button"
-  onClick={() => setSelectedOrder(record)}
->
-  View
-</Button>
+          className="order-view-button"
+          onClick={() => setSelectedOrder(record)}
+        >
+          View
+        </Button>
       ),
     },
   ];
+console.log(error?.status,'sdkjsk');
 
   const stats = [
     {
       title: "Users",
       value: statsData?.totalUsers || 0,
-         icon: Users,
+      icon: Users,
 
-     color: "green",
+      color: "green",
+      navigate: true,
     },
     {
       title: "Chats",
       value: statsData?.totalChats || 0,
-     icon: MessagesSquare,
+      icon: MessagesSquare,
       color: "blue",
     },
     {
       title: "Messages",
       value: statsData?.totalMessages || 0,
-       icon: MessageCircle,
+      icon: MessageCircle,
       color: "purple",
     },
   ];
 
   useEffect(() => {
-    dispatch(getChats({ page: 1, limit: 10 ,search: searchText}));
+    dispatch(getChats({ page: 1, limit: 10, search: searchText }));
     dispatch(getstats());
-  }, [dispatch,searchText]);
- 
+    dispatch(fetchMe())
+  }, [dispatch, searchText]);
+
   return (
     <Layout className="dashboard-layout">
       <Navbar />
@@ -147,35 +149,38 @@ export default function Dashboard() {
             <Title level={2}>Dashboard</Title>
             <Text type="secondary">Overview of your platform activity</Text>
           </div>
-<div className="stats-grid">
-  {stats.map((stat) => {
-    const Icon = stat.icon;
+          <div className="stats-grid">
+            {stats.map((stat) => {
+              const Icon = stat.icon;
 
-    return (
-      <div
-        className={`stats-card stats-${stat.color}`}
-        key={stat.title}
-      >
-        <div className="stats-card-top">
-          <div className="stats-icon">
-            <Icon size={25} strokeWidth={2} />
+              return (
+                <div
+                  className={`stats-card stats-${stat.color}`}
+                  key={stat.title}
+                  onClick={() => {
+                    if (stat?.navigate) {
+                      console.log("dlfsjh");
+
+                      navigate("/user");
+                    }
+                  }}
+                >
+                  <div className="stats-card-top">
+                    <div className="stats-icon">
+                      <Icon size={25} strokeWidth={2} />
+                    </div>
+                    <div className="stats-decoration">
+                      <Icon size={62} strokeWidth={1} />
+                    </div>
+                  </div>
+
+                  <div className="stats-card-title">{stat.title}</div>
+
+                  <div className="stats-card-value">{stat.value}</div>
+                </div>
+              );
+            })}
           </div>
-          <div className="stats-decoration">
-            <Icon size={62} strokeWidth={1} />
-          </div>
-        </div>
-
-        <div className="stats-card-title">
-          {stat.title}
-        </div>
-
-        <div className="stats-card-value">
-          {stat.value}
-        </div>
-      </div>
-    );
-  })}
-</div>
 
           <Card className="orders-card" bordered={false}>
             <div className="table-heading">
@@ -192,7 +197,7 @@ export default function Dashboard() {
             </div>
 
             <Table
-             className="orders-table"
+              className="orders-table"
               columns={columns}
               dataSource={chats?.items}
               loading={loading}
@@ -204,7 +209,9 @@ export default function Dashboard() {
                 pageSizeOptions: ["5", "8", "10", "20"],
                 showTotal: (total) => `Total ${total} chats`,
                 onChange: (page, pageSize) => {
-                  dispatch(getChats({ page, limit: pageSize ,search: searchText}));
+                  dispatch(
+                    getChats({ page, limit: pageSize, search: searchText }),
+                  );
                 },
               }}
               scroll={{ x: 650 }}

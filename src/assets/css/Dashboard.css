@@ -753,3 +753,7 @@
   color: #64748b;
   background: #f1f5f9;
 }
+ .brand-logo-name {
+    width: 150px;
+    height: 36px;
+  }

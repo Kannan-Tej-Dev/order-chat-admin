@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../api/axios.js";
+import { handleError, handleSuccess } from "../utils/toaster.js";
 
 // Async thunk for fetching the logged-in user
 export const fetchMe = createAsyncThunk(
@@ -46,7 +47,11 @@ const authSlice = createSlice({
   },
 
   reducers: {
-    clearUser: (state) => {
+    logout: (state) => {
+      localStorage.removeItem("access-token");
+      localStorage.removeItem("token");
+
+      localStorage.removeItem("name");
       state.user = null;
       state.error = null;
     },
@@ -92,9 +97,17 @@ const authSlice = createSlice({
           action.payload?.message == "Login successful" &&
           action.payload?.data?.user?.role == "ADMIN"
         ) {
+          handleSuccess("Logged Successfully")
           state.loginSuccess = true;
+          localStorage.setItem("access-token", action.payload?.data?.token);
           localStorage.setItem("token", action.payload?.data?.token);
-          localStorage.setItem("name", JSON.stringify(action.payload?.data?.user?.name));
+
+          localStorage.setItem(
+            "name",
+            JSON.stringify(action.payload?.data?.user?.name),
+          );
+        }else{
+          handleError("Login Failed")
         }
       })
 
@@ -106,6 +119,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearUser } = authSlice.actions;
+export const { logout } = authSlice.actions;
 
 export default authSlice.reducer;

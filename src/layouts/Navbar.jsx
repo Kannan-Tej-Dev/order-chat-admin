@@ -1,36 +1,34 @@
-
 import { Layout, Button, Avatar, Dropdown } from "antd";
-import {
-  UserOutlined,
-  LogoutOutlined,
-  DownOutlined,
-} from "@ant-design/icons";
+import { UserOutlined, LogoutOutlined, DownOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 // import logo from "../assets/econnectlogo.png";
 import logo from "../assets/logo3.png";
-
+import logoName from "../assets/name2.png";
+import { useDispatch } from "react-redux";
+import { logout } from "../features/authSlice";
 
 const { Header } = Layout;
 
 export default function Navbar() {
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
   const handleSignOut = () => {
     // Clear Redux authentication state here.
+    dispatch(logout());
     navigate("/login", { replace: true });
   };
 
   const profileMenu = {
     items: [
-      {
-        key: "profile",
-        icon: <UserOutlined />,
-        label: "Profile",
-        onClick: () => navigate("/profile"),
-      },
-      {
-        type: "divider",
-      },
+      // {
+      //   key: "profile",
+      //   icon: <UserOutlined />,
+      //   label: "Profile",
+      //   onClick: () => navigate("/profile"),
+      // },
+      // {
+      //   type: "divider",
+      // },
       {
         key: "logout",
         icon: <LogoutOutlined />,
@@ -43,31 +41,17 @@ export default function Navbar() {
 
   return (
     <Header className="dashboard-navbar">
-      <div
-        className="brand"
-        onClick={() => navigate("/dashboard")}
-      >
-        <img
-          src={logo}
-          alt="E Connect logo"
-          className="brand-logo"
-        />
-
-        <span className="brand-name">
+      <div className="brand" onClick={() => navigate("/")}>
+        <img src={logo} alt="E Connect logo" className="brand-logo" />
+        <img src={logoName} alt="E Connect logo" className="brand-logo-name" />
+        {/* <span className="brand-name">
           E<span className="brand-green"> Connect</span>
-        </span>
+        </span> */}
       </div>
 
-      <Dropdown
-        menu={profileMenu}
-        trigger={["click"]}
-        placement="bottomRight"
-      >
+      <Dropdown menu={profileMenu} trigger={["click"]} placement="bottomRight">
         <Button type="text" className="profile-button">
-          <Avatar
-            icon={<UserOutlined />}
-            className="profile-avatar"
-          />
+          <Avatar icon={<UserOutlined />} className="profile-avatar" />
 
           <span className="profile-name">Admin</span>
 
